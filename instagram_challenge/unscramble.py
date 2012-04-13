@@ -8,12 +8,16 @@ def main():
   
   ufile = urllib.urlopen(img_url)
   info = ufile.info()
-  img_file = 'shredded.png'
+  img_file = './shredded.png'
+  output_img_file = 'unshredded.jpg'
 
   if not os.path.exists(os.path.abspath(img_file)):
     if info.gettype() == 'image/png':
       print 'Retrieving ' + img_file + ' ...'
-      urllib.urlretrieve(img_url, './' + img_file) 
+      urllib.urlretrieve(img_url, img_file) 
+  
+  if os.path.exists(os.path.abspath(output_img_file)):
+    os.remove(output_img_file)
 
   image = Image.open(img_file)
   width, height = image.size
@@ -31,17 +35,17 @@ def main():
 
   # Create a new image of the same size as the original
   # and copy a region into the new image
-  NUMBER_OF_COLUMNS = 5
+  NUMBER_OF_COLUMNS = 20
   unshredded = Image.new("RGBA", image.size)
   shred_width = unshredded.size[0]/NUMBER_OF_COLUMNS
-  shred_number = 1
+  shred_number = 0 
   x1, y1 = shred_width * shred_number, 0
   x2, y2 = x1 + shred_width, height
   source_region = image.crop([x1, y1, x2, y2])
   destination_point = (0, 0)
   unshredded.paste(source_region, destination_point)
   # Output the new image
-  unshredded.save("unshredded.jpg", "JPEG")
+  unshredded.save(output_img_file, "JPEG")
 
 if __name__ == '__main__':
   main()
