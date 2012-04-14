@@ -47,5 +47,16 @@ def main():
   # Output the new image
   unshredded.save(output_img_file, "JPEG")
 
+  strip1 = 0, 0, 0, 0
+  strip2 = 1, 1, 1, 1
+  def compare_strips(strip1, strip2):
+    lx_1, ly_1, rx_1, ry_1 = strip1
+    lx_2, ly_2, rx_2, ry_2 = strip2
+    
+    height_inc = height / 10
+    height_marker = 0
+    for height_marker in range(0, height, height_inc):
+      print get_pixel_value(lx_1, height_marker)
+  compare_strips(strip1, strip2)
 if __name__ == '__main__':
   main()
