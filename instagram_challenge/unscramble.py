@@ -44,7 +44,7 @@ def main():
     current_strip = (x1, y1, x2, y2)
     (avg_diff, orientation) = compare_strips(first_strip, current_strip)
     
-    if current_avg == '' or avg_diff < current_avg:
+    if (current_avg == '' or avg_diff < current_avg) and avg_diff != 0:
       current_avg = avg_diff
       print 'strip: %s current avg: %s' % (shred_number, current_avg)
 
@@ -65,7 +65,6 @@ def main():
 # Access an arbitrary pixel. Data is stored as a 2d array where rows are
 # sequential. Each element in the array is a RGBA tuple (red, green, blue,
 # alpha).
-#x, y = 20, 90
 def get_pixel_value(x, y):
   pixel = data[y * width + x]
   return pixel
@@ -73,6 +72,9 @@ def get_pixel_value(x, y):
 def compare_strips(strip1, strip2):
   lx_1, ly_1, rx_1, ry_1 = strip1
   lx_2, ly_2, rx_2, ry_2 = strip2
+
+  #print lx_1, ly_1, rx_1, ry_1
+  #print lx_2, ly_2, rx_2, ry_2 
 
   # Orientation 1: A B
   # Orientation 2: B A
@@ -85,6 +87,7 @@ def compare_strips(strip1, strip2):
     # compare left of A to right of B (Orientation 2)
     dr1, dg1, db1, da1, dn1 = subtract_rgb(get_pixel_value(lx_1, height_marker), get_pixel_value(rx_2, height_marker))
     # compare right of A to left of B (Orientation 1)
+    print 'first pixel: %s second pixel: %s' % (str(get_pixel_value(rx_1, height_marker)), str(get_pixel_value(lx_2, height_marker)))
     dr2, dg2, db2, da2, dn2 = subtract_rgb(get_pixel_value(rx_1, height_marker), get_pixel_value(lx_2, height_marker))
     
     norm_list1.append(dn1)
