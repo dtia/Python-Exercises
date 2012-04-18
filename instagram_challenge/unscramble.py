@@ -50,8 +50,7 @@ def main():
 
     #if avg_diff < TOLERANCE:     
       #if orientation == 1:
-    print current_strip
-    print 'avg diff: %s orientation: %s' % (avg_diff, orientation)
+  print 'avg diff: %s orientation: %s current strip: %s' % (current_avg, orientation, str(current_strip))
     # create new image with strip in correct place
     # repeat process
 
