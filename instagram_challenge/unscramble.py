@@ -68,19 +68,25 @@ def main():
 
 def insert_neighbor_strips(strip1, strip2, orientation, img):
   # swap first strip with matched strip + 1 if orientation B, otherwise swap with matched strip - 1
+    xm = ''
     if orientation == 1:
       # A B
-      insert_strip(strip1, img, (strip2[0] - shred_width, 0))
+      xm = strip2[0] - shred_width
+      insert_strip(strip1, img, (xm, 0))
       insert_strip(strip2, img, (strip2[0], 0))
-      insert_strip([strip2[0] - shred_width, 0, strip2[0], height], img, (0,0))
+      insert_strip([xm, 0, strip2[0], height], img, (0,0))
     else:
       # B A
-      insert_strip(strip1, img, (strip2[0] + shred_width, 0))
+      xm = strip2[0] + shred_width
+      insert_strip(strip1, img, (xm, 0))
       insert_strip(strip2, img, (strip2[0], 0))
-      insert_strip([strip2[0] + shred_width, 0, strip2[0], height], img, (0,0))
+      insert_strip([xm, 0, strip2[0], height], img, (0,0))
   
-    #for shred_number in range(1, NUMBER_OF_COLUMNS):
+    for shred_number in range(1, NUMBER_OF_COLUMNS):
       # insert rest of strips here
+      if x not in (xm:
+      x1, y1 = shred_width * shred_number, 0
+      x2, y2 = x1 + shred_width, height
 
 def insert_strip(strip, img, destination_point):
   #source_region = image.crop([x1, y1, x2, y2])
