@@ -10,6 +10,7 @@ def main():
   ufile = urllib.urlopen(img_url)
   info = ufile.info()
   img_file = './shredded.png'
+  global output_img_file
   output_img_file = 'unshredded.jpg'
 
   if not os.path.exists(os.path.abspath(img_file)):
@@ -20,10 +21,12 @@ def main():
   if os.path.exists(os.path.abspath(output_img_file)):
     os.remove(output_img_file)
 
-  image = Image.open(img_file)
+  global image
   global width
   global height
   global data
+
+  image = Image.open(img_file)
   width, height = image.size
   print 'width: %s height: %s' % (width, height)
   data = image.getdata() # This gets pixel data
@@ -33,9 +36,12 @@ def main():
   TOLERANCE = 50
   NUMBER_OF_COLUMNS = 20
   unshredded = Image.new("RGBA", image.size)
+  global shred_width
   shred_width = unshredded.size[0]/NUMBER_OF_COLUMNS
 
   current_avg = ''
+  matched_strip = ''
+  matched_strip_num = '' 
   first_strip = (0, 0, shred_width, height)
   for shred_number in range(1, NUMBER_OF_COLUMNS):
     x1, y1 = shred_width * shred_number, 0
@@ -46,20 +52,38 @@ def main():
     
     if (current_avg == '' or avg_diff < current_avg) and avg_diff != 0:
       current_avg = avg_diff
+      matched_strip = current_strip
+      matched_strip_num = shred_number
       print 'strip: %s current avg: %s' % (shred_number, current_avg)
+      
 
     #if avg_diff < TOLERANCE:     
       #if orientation == 1:
-  print 'avg diff: %s orientation: %s current strip: %s' % (current_avg, orientation, str(current_strip))
+  print 'avg diff: %s orientation: %s current strip: %s strip num: %s' % (current_avg, orientation, str(matched_strip), matched_strip_num)
     # create new image with strip in correct place
     # repeat process
+  insert_neighbor_strips(first_strip, matched_strip, orientation, unshredded)
 
 
-  source_region = image.crop([x1, y1, x2, y2])
-  destination_point = (0, 0)
-  unshredded.paste(source_region, destination_point)
+def insert_neighbor_strips(strip1, strip2, orientation, img):
+  x1, y1 = 0, 0
+  if orientation == 1:
+    # A B
+    insert_strip(strip1, img, (x1, y1))
+    insert_strip(strip2, img, (x1 + shred_width, y1))
+  else:
+    # B A
+    insert_strip(strip2, img, (x1, y1))
+    insert_strip(strip1, img, (x1 + shred_width, y1))
+
+  # insert rest of strips here
+
+def insert_strip(strip, img, destination_point):
+  #source_region = image.crop([x1, y1, x2, y2])
+  source_region = image.crop(strip)
+  img.paste(source_region, destination_point)
   # Output the new image
-  unshredded.save(output_img_file, "JPEG")
+  img.save(output_img_file, "JPEG")
 
 # Access an arbitrary pixel. Data is stored as a 2d array where rows are
 # sequential. Each element in the array is a RGBA tuple (red, green, blue,
@@ -82,11 +106,11 @@ def compare_strips(strip1, strip2):
   
   height_inc = height / 10
   height_marker = 0  
-  for height_marker in range(0, height, height_inc):
+  for height_marker in range(0, height-height_inc, height_inc):
     # compare left of A to right of B (Orientation 2)
-    dr1, dg1, db1, da1, dn1 = subtract_rgb(get_pixel_value(lx_1, height_marker), get_pixel_value(rx_2, height_marker))
+    dr1, dg1, db1, da1, dn1 = subtract_rgb(get_pixel_value(lx_1 + 1, height_marker), get_pixel_value(rx_2 - 1, height_marker))
     # compare right of A to left of B (Orientation 1)
-    print 'first pixel: %s second pixel: %s' % (str(get_pixel_value(rx_1, height_marker)), str(get_pixel_value(lx_2, height_marker)))
+    print 'first pixel: %s second pixel: %s' % (str(get_pixel_value(rx_1 - 1, height_marker)), str(get_pixel_value(lx_2 + 1, height_marker)))
     dr2, dg2, db2, da2, dn2 = subtract_rgb(get_pixel_value(rx_1, height_marker), get_pixel_value(lx_2, height_marker))
     
     norm_list1.append(dn1)
