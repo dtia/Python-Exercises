@@ -34,6 +34,7 @@ def main():
   # Create a new image of the same size as the original
   # and copy a region into the new image
   TOLERANCE = 50
+  global NUMBER_OF_COLUMNS
   NUMBER_OF_COLUMNS = 20
   unshredded = Image.new("RGBA", image.size)
   global shred_width
@@ -66,17 +67,20 @@ def main():
 
 
 def insert_neighbor_strips(strip1, strip2, orientation, img):
-  x1, y1 = 0, 0
-  if orientation == 1:
-    # A B
-    insert_strip(strip1, img, (x1, y1))
-    insert_strip(strip2, img, (x1 + shred_width, y1))
-  else:
-    # B A
-    insert_strip(strip2, img, (x1, y1))
-    insert_strip(strip1, img, (x1 + shred_width, y1))
-
-  # insert rest of strips here
+  # swap first strip with matched strip + 1 if orientation B, otherwise swap with matched strip - 1
+    if orientation == 1:
+      # A B
+      insert_strip(strip1, img, (strip2[0] - shred_width, 0))
+      insert_strip(strip2, img, (strip2[0], 0))
+      insert_strip([strip2[0] - shred_width, 0, strip2[0], height], img, (0,0))
+    else:
+      # B A
+      insert_strip(strip1, img, (strip2[0] + shred_width, 0))
+      insert_strip(strip2, img, (strip2[0], 0))
+      insert_strip([strip2[0] + shred_width, 0, strip2[0], height], img, (0,0))
+  
+    #for shred_number in range(1, NUMBER_OF_COLUMNS):
+      # insert rest of strips here
 
 def insert_strip(strip, img, destination_point):
   #source_region = image.crop([x1, y1, x2, y2])
