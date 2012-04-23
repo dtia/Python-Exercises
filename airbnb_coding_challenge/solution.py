@@ -78,7 +78,8 @@ def get_special_price(index, date_list, reg_price, calendar_reader):
     if index == special_index and get_datetime(special_date) in date_list and avail == '1':
       total_price += int(special_price)
       date_list_count -= 1
-    
+  
+  # regular price for the other nights
   for i in range(date_list_count):
     total_price += int(reg_price)
         
