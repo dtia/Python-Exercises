@@ -9,69 +9,85 @@ def main():
   
   ufile = urllib.urlopen(img_url)
   info = ufile.info()
-  img_file = './shredded.png'
+  global img_file
+  img_file = 'shredded.png'
   global output_img_file
   output_img_file = 'unshredded.jpg'
 
-  if not os.path.exists(os.path.abspath(img_file)):
-    if info.gettype() == 'image/png':
-      print 'Retrieving ' + img_file + ' ...'
-      urllib.urlretrieve(img_url, img_file) 
+  if info.gettype() == 'image/png':
+    print 'Retrieving ' + img_file + ' ...'
+    urllib.urlretrieve(img_url, img_file) 
   
-  if os.path.exists(os.path.abspath(output_img_file)):
-    os.remove(output_img_file)
 
   global image
   global width
   global height
   global data
+  global NUMBER_OF_COLUMNS
+  global shred_width
+  global unshredded
+  
+  NUMBER_OF_COLUMNS = 20  
+  
 
+  print 'Unscrambling ...'
+  for i in range (50):
+    reset_image_file()
+   
+    current_avg = ''
+    matched_strip = ''
+    matched_strip_num = '' 
+    first_strip = (0, 0, shred_width, height)
+    for shred_number in range(1, NUMBER_OF_COLUMNS):
+      x1, y1 = shred_width * shred_number, 0
+      x2, y2 = x1 + shred_width, height
+      # compare first strip with current strip in loop
+      current_strip = (x1, y1, x2, y2)
+      (avg_diff, orientation) = compare_strips(first_strip, current_strip)
+      
+      if (current_avg == '' or avg_diff < current_avg) and avg_diff != 0:
+        current_avg = avg_diff
+        matched_strip = current_strip
+        matched_strip_num = shred_number
+        print 'strip: %s current avg: %s' % (shred_number, current_avg)
+        
+
+    #print 'avg diff: %s orientation: %s current strip: %s strip num: %s' % (current_avg, orientation, str(matched_strip), matched_strip_num)
+      # create new image with strip in correct place
+      # repeat process
+    
+    insert_neighbor_strips(first_strip, matched_strip, orientation, unshredded)
+    
+    # reset image file
+
+def reset_image_file():
+  if os.path.exists(os.path.abspath(output_img_file)):
+    if os.path.exists(os.path.abspath(img_file)):
+      os.remove(img_file)
+    os.rename(output_img_file, img_file)
+  
+  global width
+  global height
+  global shred_width
+  global unshredded
+  global data 
+  global image
+  
   image = Image.open(img_file)
   width, height = image.size
-  print 'width: %s height: %s' % (width, height)
   data = image.getdata() # This gets pixel data
   
   # Create a new image of the same size as the original
   # and copy a region into the new image
-  TOLERANCE = 50
-  global NUMBER_OF_COLUMNS
-  NUMBER_OF_COLUMNS = 20
   unshredded = Image.new("RGBA", image.size)
-  global shred_width
   shred_width = unshredded.size[0]/NUMBER_OF_COLUMNS
-
-  current_avg = ''
-  matched_strip = ''
-  matched_strip_num = '' 
-  first_strip = (0, 0, shred_width, height)
-  for shred_number in range(1, NUMBER_OF_COLUMNS):
-    x1, y1 = shred_width * shred_number, 0
-    x2, y2 = x1 + shred_width, height
-    # compare first strip with current strip in loop
-    current_strip = (x1, y1, x2, y2)
-    (avg_diff, orientation) = compare_strips(first_strip, current_strip)
-    
-    if (current_avg == '' or avg_diff < current_avg) and avg_diff != 0:
-      current_avg = avg_diff
-      matched_strip = current_strip
-      matched_strip_num = shred_number
-      print 'strip: %s current avg: %s' % (shred_number, current_avg)
-      
-
-    #if avg_diff < TOLERANCE:     
-      #if orientation == 1:
-  print 'avg diff: %s orientation: %s current strip: %s strip num: %s' % (current_avg, orientation, str(matched_strip), matched_strip_num)
-    # create new image with strip in correct place
-    # repeat process
-  insert_neighbor_strips(first_strip, matched_strip, orientation, unshredded)
-
 
 def insert_neighbor_strips(strip1, strip2, orientation, img):
   # swap first strip with matched strip + 1 if orientation B, otherwise swap with matched strip - 1
     xm = ''
     if orientation == 1:
       # A B
-      xm = strip2[0] - shred_width
+      xm = strip2[0] - shred_width # xm is the x coordinate of the matching strip
       insert_strip(strip1, img, (xm, 0))
       insert_strip(strip2, img, (strip2[0], 0))
       insert_strip([xm, 0, strip2[0], height], img, (0,0))
@@ -84,9 +100,12 @@ def insert_neighbor_strips(strip1, strip2, orientation, img):
   
     for shred_number in range(1, NUMBER_OF_COLUMNS):
       # insert rest of strips here
-      if x not in (xm:
-      x1, y1 = shred_width * shred_number, 0
-      x2, y2 = x1 + shred_width, height
+      x = shred_width * shred_number
+      #print 'current x: %s matched x: %s strip1: %s strip2: %s' % (x, xm, strip1[0], strip2[0])
+      if x not in (xm, strip1[0], strip2[0]):
+        x1, y1 = x, 0
+        x2, y2 = x1 + shred_width, height
+        insert_strip([x1, y1, x2, y2], img, (x,0))
 
 def insert_strip(strip, img, destination_point):
   #source_region = image.crop([x1, y1, x2, y2])
@@ -116,12 +135,12 @@ def compare_strips(strip1, strip2):
   
   height_inc = height / 10
   height_marker = 0  
-  for height_marker in range(0, height-height_inc, height_inc):
+  for height_marker in range(0, height, height_inc):
     # compare left of A to right of B (Orientation 2)
     dr1, dg1, db1, da1, dn1 = subtract_rgb(get_pixel_value(lx_1 + 1, height_marker), get_pixel_value(rx_2 - 1, height_marker))
     # compare right of A to left of B (Orientation 1)
-    print 'first pixel: %s second pixel: %s' % (str(get_pixel_value(rx_1 - 1, height_marker)), str(get_pixel_value(lx_2 + 1, height_marker)))
-    dr2, dg2, db2, da2, dn2 = subtract_rgb(get_pixel_value(rx_1, height_marker), get_pixel_value(lx_2, height_marker))
+    #print 'first pixel: %s second pixel: %s' % (str(get_pixel_value(rx_1 - 1, height_marker)), str(get_pixel_value(lx_2 + 1, height_marker)))
+    dr2, dg2, db2, da2, dn2 = subtract_rgb(get_pixel_value(rx_1 - 1, height_marker), get_pixel_value(lx_2 + 1, height_marker))
     
     norm_list1.append(dn1)
     norm_list2.append(dn2)
@@ -129,7 +148,7 @@ def compare_strips(strip1, strip2):
   avg1 = get_avg(norm_list1)
   avg2 = get_avg(norm_list2)
   
-  print 'avg 1: %s avg 2: %s' % (avg1, avg2)
+  #print 'avg 1: %s avg 2: %s' % (avg1, avg2)
   
   if avg1 > avg2:
     return (avg2, 1) # Orientation 1
@@ -146,7 +165,11 @@ def subtract_rgb(rgb1, rgb2):
   dr = rgb1[0] - rgb2[0]
   dg = rgb1[1] - rgb2[1]
   db = rgb1[2] - rgb2[2]
-  da = rgb1[3] - rgb2[3]
+  #print 'rgb1: %s rgb2: %s' % (str(rgb1), str(rgb2))
+  if len(rgb1) > 3 and len(rgb2) > 3:
+    da = rgb1[3] - rgb2[3]
+  else:
+    da = 0
   
   norm_diff = math.sqrt(math.pow(dr, 2) + math.pow(dg, 2) + math.pow(db, 2) + math.pow(da, 2))
   return (dr, dg, db, da, norm_diff)
