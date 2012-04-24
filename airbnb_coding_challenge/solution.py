@@ -18,7 +18,7 @@ def main():
     (index, xcoord, ycoord, price) = property
     if (xcoord, ycoord) not in properties: properties[(xcoord, ycoord)] = (index, price)
   
-  print 'Generating Results ...'
+  print 'Generating Search Results ...'
   
   for search in search_reader:
     (index, xcoord, ycoord, arrive, leave) = search
@@ -39,7 +39,6 @@ def main():
       # no matches
       output_writer.writerow([index, '-', '-', '-'])
     
-
   print 'Done!'
 
 def filter_location(xcoord, ycoord, properties):
@@ -85,23 +84,21 @@ def get_special_price(index, date_list, reg_price, calendar_reader):
         
   return total_price
 
-     
 def get_date_range(date_start, date_end):
-    one_day = datetime.timedelta(days=1)
-    date_diff = (get_datetime(date_end) - get_datetime(date_start)).days
-     
-    date_list = []
-    i = 0
-    curr_date = get_datetime(date_start)
-    
-    #populate date array
-    while i < date_diff:
-      date_list.append(curr_date)
-      curr_date = curr_date + one_day
-      i += 1
+  one_day = datetime.timedelta(days=1)
+  date_diff = (get_datetime(date_end) - get_datetime(date_start)).days
    
-    return (date_diff, date_list)
-
+  date_list = []
+  i = 0
+  curr_date = get_datetime(date_start)
+  
+  #populate date array
+  while i < date_diff:
+    date_list.append(curr_date)
+    curr_date = curr_date + one_day
+    i += 1
+ 
+  return (date_diff, date_list)
 
 def get_datetime(date):
   date_arr = date.split('-')
