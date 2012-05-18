@@ -41,7 +41,7 @@ def main():
     command = command_arr[0]
 
     #print 'dict: ' + str(dict)
-
+    # for begin, make a list of commands and pointers for the next begin block
 
 def find_keys(val, dict):
   matches = []
