@@ -1,3 +1,8 @@
+"""
+Thumbtack Coding Challenge
+Problem 3: Simple Database
+Author: Derek Tia
+"""
 def main():
   com_dict = {}
   set = 'SET'
@@ -37,28 +42,22 @@ def main():
       equalto_call(val)
 
     elif command == begin:
-      begin_call() #fix this
+      begin_call() 
 
     elif command == rollback:
       rollback_call()
 
     elif command == commit:
-      # traverse through blocks from beginning and save values to global dict
       commit_blocks()
     
-    print 'blocks: ' + str(blocks)
-
     commandline = raw_input('')
     command_arr = commandline.split()
     command = command_arr[0]
 
-    #print 'dict: ' + str(dict)
-    # for begin, make a list of commands and pointers for the next begin block
-
 def begin_call():
   if len(blocks) > 0:
-    # copy values over
-    last_dict = blocks[len(blocks)-1]
+    # copy existing values over
+    last_dict = blocks[len(blocks)-1].copy()
     if len(last_dict) > 0:
       blocks.append(last_dict)
   elif len(dict) > 0:
@@ -68,12 +67,12 @@ def begin_call():
     blocks.append(temp_dict)
 
 def rollback_call():
-  global blocks
   if len(blocks) > 0:
     blocks.pop()
   else:
     print 'INVALID ROLLBACK'
 
+# traverse through blocks from beginning and save values to global dict
 def commit_blocks():
   global blocks
   for block in blocks:
@@ -84,18 +83,16 @@ def commit_blocks():
 def equalto_call(val):
   # if there is an open block
   if len(blocks) > 0:
-    last_dict = blocks.pop()
-    print find_keys(val, last_dict) #sort in alphabetical order
-    blocks.append(last_dict)
+    last_dict = blocks[len(blocks)-1] 
+    print find_keys(val, last_dict) 
   else:
     print find_keys(val, dict)
 
 def set_dict(var, val):
   # if there is an open block
   if len(blocks) > 0:
-    last_dict = blocks.pop()
+    last_dict = blocks[len(blocks)-1]
     set_val(var, val, last_dict)
-    blocks.append(last_dict)
   else:
     set_val(var, val, dict)
 
@@ -105,9 +102,8 @@ def set_val(var, val, dict):
 def get_dict(var):
   # if there is an open block
   if len(blocks) > 0:
-    last_dict = blocks.pop()
+    last_dict = blocks[len(blocks)-1] 
     print_val(var, last_dict)
-    blocks.append(last_dict)
   else:
     print_val(var, dict)
 
@@ -118,10 +114,9 @@ def print_val(var, dict):
     print 'NULL'
 
 def unset_dict(var):
+  # if there is an open block
   if len(blocks) > 0:
     last_dict = blocks[len(blocks)-1]
-    print 'last dict: ' + str(last_dict)
-    print 'blocks now: ' + str(blocks)
     unset_var(var, last_dict)
   else:
     unset_var(var, dict)
@@ -139,7 +134,7 @@ def find_keys(val, dict):
   if len(matches) == 0:
     output = 'NONE'
   else:
-    output = ' '.join(matches)
+    output = ' '.join(sorted(matches)) #sort by alphabetical order
 
   return output
   
