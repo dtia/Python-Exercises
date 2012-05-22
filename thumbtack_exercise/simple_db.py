@@ -37,8 +37,7 @@ def main():
       equalto_call(val)
 
     elif command == begin:
-      temp_dict = {}
-      blocks.append(temp_dict)
+      begin_call() #fix this
 
     elif command == rollback:
       rollback_call()
@@ -46,6 +45,8 @@ def main():
     elif command == commit:
       # traverse through blocks from beginning and save values to global dict
       commit_blocks()
+    
+    print 'blocks: ' + str(blocks)
 
     commandline = raw_input('')
     command_arr = commandline.split()
@@ -53,6 +54,18 @@ def main():
 
     #print 'dict: ' + str(dict)
     # for begin, make a list of commands and pointers for the next begin block
+
+def begin_call():
+  if len(blocks) > 0:
+    # copy values over
+    last_dict = blocks[len(blocks)-1]
+    if len(last_dict) > 0:
+      blocks.append(last_dict)
+  elif len(dict) > 0:
+      blocks.append(dict)
+  else:
+    temp_dict = {}
+    blocks.append(temp_dict)
 
 def rollback_call():
   global blocks
@@ -74,7 +87,6 @@ def equalto_call(val):
     last_dict = blocks.pop()
     print find_keys(val, last_dict) #sort in alphabetical order
     blocks.append(last_dict)
-    print 'blocks: ' + str(blocks)
   else:
     print find_keys(val, dict)
 
@@ -94,12 +106,12 @@ def get_dict(var):
   # if there is an open block
   if len(blocks) > 0:
     last_dict = blocks.pop()
-    get_val(var, last_dict)
+    print_val(var, last_dict)
     blocks.append(last_dict)
   else:
-    get_val(var, dict)
+    print_val(var, dict)
 
-def get_val(var, dict):
+def print_val(var, dict):
   if var in dict:
     print dict[var]
   else:
@@ -107,9 +119,10 @@ def get_val(var, dict):
 
 def unset_dict(var):
   if len(blocks) > 0:
-    last_dict = blocks.pop()
+    last_dict = blocks[len(blocks)-1]
+    print 'last dict: ' + str(last_dict)
+    print 'blocks now: ' + str(blocks)
     unset_var(var, last_dict)
-    blocks.append(last_dict)
   else:
     unset_var(var, dict)
 
