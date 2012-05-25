@@ -22,26 +22,27 @@ def find_max_4(list):
 def sort_sublist(unsorted):
   sorted = []
 
-  for i in range(3):
+  for i in range(4):
     curr = unsorted[i]
 
-    if i is 1:
-      if curr > unsorted[i+1]:
+    if i is 0:
+      next = unsorted[i+1]
+      if curr > next:
         sorted.append(next)
         sorted.append(curr)
       else:
         sorted.append(curr)
         sorted.append(next)
 
-    if i is 2:
+    elif i is 2:
       if curr > sorted[1]:
         sorted.append(curr)
       elif curr < sorted[0]:
         sorted.insert(0, curr)
       else:
         sorted.insert(1, curr)
-
-    if i is 3:
+    
+    elif i is 3:
       if curr > sorted[2]:
         sorted.append(curr)
       elif curr < sorted[0]:
@@ -50,8 +51,6 @@ def sort_sublist(unsorted):
         sorted.insert(1, curr)
       else:
         sorted.insert(2, curr)
-  
-    print sorted
 
   return sorted 
 
