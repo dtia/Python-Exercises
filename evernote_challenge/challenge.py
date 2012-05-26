@@ -3,21 +3,30 @@ Write a function that finds the highest 4 integers in an unordered list of numbe
 """
 
 def main():
-  unordered = [76, 87, -10, 65, 23, -29,  98, 54, 45, 12]
-  unsorted4 = unordered[:4]
-  print sort_sublist(unsorted4)
+  unordered = [76, 87, 5, -10, 65, 70, 0, 55, 23, -29,  98, 54, 45, 12]
+  print find_max_4(unordered)
 
-"""
 def find_max_4(list):
   unsorted4 = list[:4]
-  max4 = [None, None, None, None]
-  global_min = max4[0]
-  global_max = max4[3]
+  max4 = sort_sublist(unsorted4) 
 
   for i in list[4:]:
-    if i > global_max:
-      global_max = i
-"""
+    if i > max4[0]:
+      max4 = insert_int(i, max4)
+  return max4
+
+def insert_int(int, max4): 
+  if int > max4[3]:
+    max4.append(int)
+  elif int > max4[2]:
+    max4.insert(3, int)
+  elif int > max4[1]:
+    max4.insert(2, int)
+  else:
+    max4.insert(1, int)
+
+  max4 = max4[-4:]
+  return max4
 
 def sort_sublist(unsorted):
   sorted = []
@@ -52,8 +61,9 @@ def sort_sublist(unsorted):
       else:
         sorted.insert(2, curr)
 
-  return sorted 
+  return sorted
 
+"""
 def merge_sort(list):
   if len(list) is 1:
     return list
@@ -67,6 +77,6 @@ def merge_sort(list):
     second_half = len(list)
     print 'first half: %s second half: %s' % (first_half, second_half)
     merge_sort(list[:first_half]).append(merge_sort(list[:second_half]))
-    
+""" 
 if __name__ == '__main__':
   main()
