@@ -16,15 +16,11 @@ def find_max_4(list):
   return max4
 
 def insert_int(int, max4): 
-  if int > max4[3]:
-    max4.append(int)
-  elif int > max4[2]:
-    max4.insert(3, int)
-  elif int > max4[1]:
-    max4.insert(2, int)
-  else:
-    max4.insert(1, int)
+  i = 0
+  while i < 4 and int > max4[i]:
+    i += 1
 
+  max4.insert(i, int)
   max4 = max4[-4:]
   return max4
 
