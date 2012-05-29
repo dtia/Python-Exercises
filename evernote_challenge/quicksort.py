@@ -1,3 +1,5 @@
+import random
+
 def main():
   unordered = [76, 87, 5, -10, 65, 70, 0, 55, 23, -29,  98, 54, 45, 12]
   print quicksort(unordered)
@@ -26,7 +28,9 @@ def quicksort(arr):
 
 def select_pivot(arr):
   #pick random index and return its value
-  return arr[len(arr)/2] 
+  r = random.Random()
+  rand = r.randint(0, len(arr)-1)
+  return arr[rand]
 
 if __name__ == '__main__':
   main()
